@@ -17,7 +17,10 @@ import io
 myFmt = mdates.DateFormatter('%Y-%m-%d')
 templates = Jinja2Templates(directory="templates")
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
+try:
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+except:
+    app.mount("/app/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
