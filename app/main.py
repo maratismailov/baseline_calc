@@ -19,13 +19,15 @@ templates = Jinja2Templates(directory="templates")
 app = FastAPI()
 try:
     app.mount("/static", StaticFiles(directory="static"), name="static")
+    path = ""
 except:
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
+    path = "app/"
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     make_custom()
-    plots = sorted(os.listdir('static/plots'))
+    plots = sorted(os.listdir(path + 'static/plots'))
     plots = ['plots/' + file for file in plots]
     # return render_template('report.html', hists = hists)
     return templates.TemplateResponse("index.html", {"request": request, "plots": plots})
@@ -89,12 +91,13 @@ def make_custom_plot(dataframe, filename, name):
     # ax.xaxis.set_major_formatter(myFmt)
     ax.set(xlabel='day', ylabel='baseline length', title= filename + ' ' + name + ' baseline time series, speed = ' + str(round(speed_mm_per_year, 2)) + ' mm per year, +-stderr = ' + str(final_stderr))
     plt.setp(ax.get_xticklabels(), rotation=45)
-    plt.savefig('static/plots/final_regr' + '_' + filename + '_' + name + ".png")
+    plt.savefig(path + 'static/plots/final_regr' + '_' + filename + '_' + name + ".png")
 
 def make_custom():
-    for file in os.listdir('data/'):
+    try:
+    for file in os.listdir(path + 'data/'):
         filename = file[:-4]
-        dataframe = pd.read_csv("data/" + file, parse_dates=['date'])
+        dataframe = pd.read_csv(path + "data/" + file, parse_dates=['date'])
         dataframe.set_index('date')
         make_custom_plot(dataframe, filename, 'east')
         make_custom_plot(dataframe, filename, 'north')
