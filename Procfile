@@ -1,0 +1,1 @@
+web: uvicorn app.baseline_calc:app
