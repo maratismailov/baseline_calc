@@ -94,7 +94,6 @@ def make_custom_plot(dataframe, filename, name):
     plt.savefig(path + 'static/plots/final_regr' + '_' + filename + '_' + name + ".png")
 
 def make_custom():
-    try:
     for file in os.listdir(path + 'data/'):
         filename = file[:-4]
         dataframe = pd.read_csv(path + "data/" + file, parse_dates=['date'])
