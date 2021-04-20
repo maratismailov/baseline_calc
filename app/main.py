@@ -29,6 +29,8 @@ templates = Jinja2Templates(directory= path + "templates")
 async def index(request: Request):
     make_custom()
     plots = sorted(os.listdir(path + 'static/plots'))
+    plots = list(filter(lambda x: "empty" not in x, plots))
+    print(plots)
     plots = ['plots/' + file for file in plots]
     # return render_template('report.html', hists = hists)
     return templates.TemplateResponse("index.html", {"request": request, "plots": plots})
