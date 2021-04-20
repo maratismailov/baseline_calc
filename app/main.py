@@ -23,7 +23,7 @@ except:
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
     path = "app/"
 
-templates = Jinja2Templates(directory= path+ "templates")
+templates = Jinja2Templates(directory= path + "templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
