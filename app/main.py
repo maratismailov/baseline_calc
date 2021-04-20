@@ -20,7 +20,7 @@ app = FastAPI()
 try:
     app.mount("/static", StaticFiles(directory="static"), name="static")
 except:
-    app.mount("/app/static", StaticFiles(directory="static"), name="static")
+    app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
