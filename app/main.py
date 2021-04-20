@@ -15,7 +15,7 @@ import math
 import io
 
 myFmt = mdates.DateFormatter('%Y-%m-%d')
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory= path+ "templates")
 app = FastAPI()
 try:
     app.mount("/static", StaticFiles(directory="static"), name="static")
