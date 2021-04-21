@@ -19,6 +19,19 @@ tfr_tt_az = 117.21
 
 tfr_ak_rot_az = tfr_ak_az - 90
 tfr_tt_rot_az = tfr_tt_az - 90
+# theta = math.radians(90)
+# point = (5, -11)
+
+# print(rotate_origin_only(point, theta))
+
+
+def rotate_origin_only(xy, radians):
+    """Only rotate a point around the origin (0, 0)."""
+    x, y = xy
+    xx = x * math.cos(radians) + y * math.sin(radians)
+    yy = -x * math.sin(radians) + y * math.cos(radians)
+
+    return xx, yy
 
 myFmt = mdates.DateFormatter('%Y-%m-%d')
 app = FastAPI()
@@ -40,6 +53,28 @@ async def index(request: Request):
     plots = ['plots/' + file for file in plots]
     # return render_template('report.html', hists = hists)
     return templates.TemplateResponse("index.html", {"request": request, "plots": plots})
+
+def rotate_x(x):
+    x = x['east_value'] * math.cos(math.radians(angle)) + x['north_value'] * math.sin(math.radians(angle))
+
+def rotate_y(y):
+    y = y['north_value'] * math.sin(math.radians(angle)) + y['east_value'] * math.cos(math.radians(angle))
+
+def rotate(dataframe, filename):
+
+    for index in dataframe.index:
+        dataframe.loc[index, 'east_value'] = dataframe.loc[index, 'east_value'] * math.cos(math.radians(angle)) + dataframe.loc[index, 'north_value'] * math.sin(math.radians(angle))
+        dataframe.loc[index, 'north_value'] = dataframe.loc[index, 'north_value'] * math.cos(math.radians(angle)) + dataframe.loc[index, 'north_value'] * math.sin(math.radians(angle))
+    dataframe.columns = ['date', 'lateral', 'longitudinal']
+    return 's'
+
+# def rotate_origin_only(xy, radians):
+#     """Only rotate a point around the origin (0, 0)."""
+#     x, y = xy
+#     xx = x * math.cos(radians) + y * math.sin(radians)
+#     yy = -x * math.sin(radians) + y * math.cos(radians)
+
+#     return xx, yy
 
 def make_custom_plot(dataframe, filename, name):
     x_orig = pd.to_datetime(dataframe['date'])
@@ -99,7 +134,7 @@ def make_custom_plot(dataframe, filename, name):
     ax.get_yaxis().set_major_formatter(
         matplotlib.ticker.FuncFormatter(lambda x, p: format(round(float(x), 4), ',')))
     # ax.xaxis.set_major_formatter(myFmt)
-    ax.set(xlabel='day', ylabel='distance', title= filename + ' ' + name + ' movement time series, speed = ' + str(round(speed_mm_per_year, 2)) + ' mm per year, +-stderr = ' + str(final_stderr))
+    ax.set(xlabel='day', ylabel='baseline length', title= filename + ' ' + name + ' baseline time series, speed = ' + str(round(speed_mm_per_year, 2)) + ' mm per year, +-stderr = ' + str(final_stderr))
     plt.setp(ax.get_xticklabels(), rotation=45)
     plt.savefig(path + 'static/plots/final_regr' + '_' + filename + '_' + name + ".png")
 

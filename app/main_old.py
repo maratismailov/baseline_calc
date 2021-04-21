@@ -17,8 +17,17 @@ import io
 tfr_ak_az = 131.71
 tfr_tt_az = 117.21
 
-tfr_ak_rot_az = tfr_ak_az - 90
-tfr_tt_rot_az = tfr_tt_az - 90
+tfr_ak_rot_az = tfr_ak_az + 90
+tfr_tt_rot_az = tfr_tt_az + 90
+
+def rotate_via_numpy(xy, radians):
+    """Use numpy to build a rotation matrix and take the dot product."""
+    x, y = xy
+    c, s = np.cos(radians), np.sin(radians)
+    j = np.matrix([[c, s], [-s, c]])
+    m = np.dot(j, [x, y])
+
+    return float(m.T[0]), float(m.T[1])
 
 myFmt = mdates.DateFormatter('%Y-%m-%d')
 app = FastAPI()
@@ -44,8 +53,7 @@ async def index(request: Request):
 def make_custom_plot(dataframe, filename, name):
     x_orig = pd.to_datetime(dataframe['date'])
     x=np.array(pd.to_datetime(dataframe['date']).index.values, dtype=float)
-    # y_orig = dataframe[name + '_value']
-    y_orig = dataframe[name]
+    y_orig = dataframe[name + '_value']
     y_orig = y_orig
     y_mean = np.mean(y_orig)
     y = np.array(y_orig)
@@ -99,7 +107,7 @@ def make_custom_plot(dataframe, filename, name):
     ax.get_yaxis().set_major_formatter(
         matplotlib.ticker.FuncFormatter(lambda x, p: format(round(float(x), 4), ',')))
     # ax.xaxis.set_major_formatter(myFmt)
-    ax.set(xlabel='day', ylabel='distance', title= filename + ' ' + name + ' movement time series, speed = ' + str(round(speed_mm_per_year, 2)) + ' mm per year, +-stderr = ' + str(final_stderr))
+    ax.set(xlabel='day', ylabel='baseline length', title= filename + ' ' + name + ' baseline time series, speed = ' + str(round(speed_mm_per_year, 2)) + ' mm per year, +-stderr = ' + str(final_stderr))
     plt.setp(ax.get_xticklabels(), rotation=45)
     plt.savefig(path + 'static/plots/final_regr' + '_' + filename + '_' + name + ".png")
 
@@ -108,15 +116,5 @@ def make_custom():
         filename = file[:-4]
         dataframe = pd.read_csv(path + "data/" + file, parse_dates=['date'])
         dataframe.set_index('date')
-        angle = 0
-        if filename == 'tkum_tala':
-            angle = tfr_tt_rot_az
-        else:
-            angle = tfr_ak_rot_az
-        for index in dataframe.index:
-            dataframe.loc[index, 'east_value'] = dataframe.loc[index, 'east_value'] * math.cos(math.radians(angle)) + dataframe.loc[index, 'north_value'] * math.sin(math.radians(angle))
-            dataframe.loc[index, 'north_value'] = dataframe.loc[index, 'north_value'] * math.cos(math.radians(angle)) + dataframe.loc[index, 'north_value'] * math.sin(math.radians(angle))
-        dataframe.columns = ['date', 'lateral', 'longitudinal']
-        # rotate(dataframe, filename)
-        make_custom_plot(dataframe, filename, 'longitudinal')
-        make_custom_plot(dataframe, filename, 'lateral')
+        make_custom_plot(dataframe, filename, 'east')
+        make_custom_plot(dataframe, filename, 'north')
