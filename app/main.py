@@ -115,8 +115,12 @@ def make_custom():
             angle = tfr_ak_rot_az
         for index in dataframe.index:
             dataframe.loc[index, 'east_value'] = dataframe.loc[index, 'east_value'] * math.cos(math.radians(angle)) + dataframe.loc[index, 'north_value'] * math.sin(math.radians(angle))
-            dataframe.loc[index, 'north_value'] = dataframe.loc[index, 'north_value'] * math.cos(math.radians(angle)) + dataframe.loc[index, 'north_value'] * math.sin(math.radians(angle))
+            dataframe.loc[index, 'north_value'] = - dataframe.loc[index, 'east_value'] * math.sin(math.radians(angle)) + dataframe.loc[index, 'north_value'] * math.cos(math.radians(angle))
         dataframe.columns = ['date', 'lateral', 'longitudinal']
         # rotate(dataframe, filename)
         make_custom_plot(dataframe, filename, 'longitudinal')
         make_custom_plot(dataframe, filename, 'lateral')
+
+
+    # xx = x * math.cos(radians) + y * math.sin(radians)
+    # yy = -x * math.sin(radians) + y * math.cos(radians)
